@@ -7,6 +7,7 @@ import torch.nn as nn
 from torch.nn import BCEWithLogitsLoss
 from torch.utils.data import TensorDataset, DataLoader, RandomSampler, SequentialSampler
 from transformers import *
+import sys
 
 def define_model(device, num_labels, lr):
     print('Start defining the model')
@@ -83,10 +84,12 @@ def main():
     NUM_LABELS = 126 # amount of the different topics
     ADAM_DEFAULT_LR = 1e-5
     device = 'cuda' if torch.cuda.is_available() else 'cpu'
+    train_data_loader_name = f'notebooks/data-loaders/{sys.argv[1]}'
+    model_name = f'notebooks/models/{sys.argv[1]}.pt'
 
-    train_dataloader = torch.load('notebooks/data-loaders/mini-train_data_loader_bs48')
+    train_dataloader = torch.load(train_data_loader_name)
     model, optimizer, criterion = define_model(device, NUM_LABELS, ADAM_DEFAULT_LR)
-    model_name = 'puhti_test_mini_local_1'
+  
     n_epochs = 1
 
     train_losses, all_batch_losses = train_model(device, model, model_name, optimizer, criterion, n_epochs, NUM_LABELS, train_dataloader)
