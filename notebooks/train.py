@@ -41,8 +41,6 @@ def train_model(device,model, model_name, optimizer, criterion, n_epochs, num_la
         epoch_loss = 0
         batch_losses = []
         for step, batch in enumerate(dataloader):
-            if step == 3:
-                break
             batch_start_time = time.time()
             batch = tuple(t.to(device) for t in batch)
             b_input_ids, b_input_mask, b_labels, b_token_types = batch # unpack from dataloader
