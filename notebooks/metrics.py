@@ -1,3 +1,5 @@
+import torch
+
 def evaluate(output, target, thresh):
     '''
     Parameters:
@@ -7,10 +9,10 @@ def evaluate(output, target, thresh):
     '''
     out = output > thresh
     tgt = target > thresh
-    tp = int(sum(out & tgt))
-    tn = int(sum((~out) & (~tgt)))
-    fp = int(sum(out & (~tgt)))
-    fn = int(sum((~out) & tgt))
+    tp = int((out & tgt).sum())
+    tn = int(((~out) & (~tgt)).sum())
+    fp = int((out & (~tgt)).sum())
+    fn = int(((~out) & tgt).sum())
     precision = (tp / (tp + fp + 1e-12))
     recall = (tp / (tp + fn + 1e-12))
     f_score = (2 * precision * recall)/(precision + recall)
