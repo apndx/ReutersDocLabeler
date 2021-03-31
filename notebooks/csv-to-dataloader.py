@@ -10,7 +10,7 @@ import sys
 def main():
 
     # load csv
-    df = pd.read_csv('reuters-csv/inputs_trunc.csv', delimiter=';')
+    df = pd.read_csv('notebooks/reuters-csv/inputs.csv', delimiter=';')
 
     # change strings to lists
     df['target'] = df['target'].apply(eval)
