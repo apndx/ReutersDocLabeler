@@ -84,6 +84,7 @@ def main():
     NUM_LABELS = 126 # amount of the different topics
     ADAM_DEFAULT_LR = 1e-5
     device = 'cuda' if torch.cuda.is_available() else 'cpu'
+    print('Device in use:', device)
     train_data_loader_name = f'notebooks/data-loaders/{sys.argv[1]}'
     model_name = f'notebooks/models/{sys.argv[1]}.pt'
 
