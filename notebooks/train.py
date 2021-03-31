@@ -8,6 +8,8 @@ from torch.nn import BCEWithLogitsLoss
 from torch.utils.data import TensorDataset, DataLoader, RandomSampler, SequentialSampler
 from transformers import *
 import sys
+from metrics import evaluate
+# from ReutersDocLabeler.notebooks.metrics import evaluate
 
 def define_model(device, num_labels, lr):
     print('Start defining the model')
@@ -30,6 +32,9 @@ def train_model(device,model, model_name, optimizer, criterion, n_epochs, num_la
     steps = 0
     examples = 0
     all_batch_losses = []
+    scores = []
+    SCORE_INTERVAL = 10
+    ALIVE_INTERVAL = 100
     
     for epoch in range(n_epochs):
         start_time = time.time()
@@ -48,6 +53,13 @@ def train_model(device,model, model_name, optimizer, criterion, n_epochs, num_la
             logits = outputs[0]
             loss = criterion(logits.view(-1, num_labels),b_labels.type_as(logits).view(-1,num_labels)) #convert labels to float for calculation
 
+            # Evaluate results
+            if steps % SCORE_INTERVAL == 0 or steps == len(dataloader):
+                score = evaluate(torch.sigmoid(logits), b_labels, 0.5)
+                score['epoch'] = epoch + 1
+                score['batch'] = step
+                scores.append(score)
+
             # Backward pass
             loss.backward()
             optimizer.step()
@@ -60,8 +72,9 @@ def train_model(device,model, model_name, optimizer, criterion, n_epochs, num_la
             loss_check = epoch_loss/(step+1)
             batch_losses.append(loss_check)
             batch_mins, batch_secs = epoch_time(batch_start_time, batch_end_time)
-            print(f'Epoch: {epoch+1:02} | Step {step} | Batch time: {batch_mins}m {batch_secs}s')
-            print(f'\tLoss check: {loss_check:.3f}')
+            if steps % ALIVE_INTERVAL == 0 or steps == len(dataloader):
+                print(f'Epoch: {epoch+1:02} | Step {step} | Batch time: {batch_mins}m {batch_secs}s')
+                print(f'\tLoss check: {loss_check:.3f}')
         
         torch.save(model.state_dict(), model_name)    
         train_loss = epoch_loss / len(dataloader)
@@ -74,6 +87,8 @@ def train_model(device,model, model_name, optimizer, criterion, n_epochs, num_la
         print(f'Epoch: {epoch+1:02} | Epoch Time: {epoch_mins}m {epoch_secs}s')
         print(f'\tTrain Loss: {train_loss:.3f}')
         
+    pdScores = pd.DataFrame(scores)
+    pdScores.to_csv(f'scores_{int(time.time())}.csv', index = False)
             
     return train_losses, all_batch_losses
 
@@ -86,7 +101,7 @@ def main():
     device = 'cuda' if torch.cuda.is_available() else 'cpu'
     print('Device in use:', device)
     train_data_loader_name = f'notebooks/data-loaders/{sys.argv[1]}'
-    model_name = f'notebooks/models/{sys.argv[1]}.pt'
+    model_name = f'notebooks/models/{sys.argv[2]}.pt'
 
     train_dataloader = torch.load(train_data_loader_name)
     model, optimizer, criterion = define_model(device, NUM_LABELS, ADAM_DEFAULT_LR)
