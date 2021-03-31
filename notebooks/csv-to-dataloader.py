@@ -11,6 +11,7 @@ def main():
 
     # load csv
     df = pd.read_csv('notebooks/reuters-csv/inputs.csv', delimiter=';')
+    print('Csv loaded')
 
     # change strings to lists
     df['target'] = df['target'].apply(eval)
@@ -27,6 +28,7 @@ def main():
     input_ids = encodings['input_ids']  # tokenized and encoded sentences
     token_type_ids = encodings['token_type_ids']  # token type ids
     attention_masks = encodings['attention_mask']  # attention masks
+    print('Encodings mapped')
 
     # rows that have unique targets
     label_counts = df.target.astype(str).value_counts()
@@ -39,16 +41,19 @@ def main():
     one_freq_token_types = [token_type_ids.pop(i) for i in one_freq_idxs]
     one_freq_attention_masks = [attention_masks.pop(i) for i in one_freq_idxs]
     one_freq_labels = [labels.pop(i) for i in one_freq_idxs]
+    print('Rare targets separated')
 
     # original rows: 299 773. split train/dev/test 80/10/10, 29 977 for dev/test
     remaining_inputs, dev_inputs, remaining_labels, dev_labels, remaining_token_types, dev_token_types, remaining_masks, dev_masks = train_test_split(
         input_ids, labels, token_type_ids, attention_masks,
         random_state=42, test_size=0.101556, stratify=labels)
+    print('Dev splits done')
 
     train_inputs, test_inputs, train_labels, test_labels, train_token_types, test_token_types, train_masks, test_masks = train_test_split(
         remaining_inputs, remaining_labels, remaining_token_types, remaining_masks,
         random_state=42, test_size=0.113035, stratify=remaining_labels)
-
+    print('Test splits done')
+    
     # add the unique rows to train
     train_inputs.extend(one_freq_input_ids)
     train_labels.extend(one_freq_labels)
