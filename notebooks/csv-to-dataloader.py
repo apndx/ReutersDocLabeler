@@ -59,6 +59,7 @@ def main():
     train_labels.extend(one_freq_labels)
     train_masks.extend(one_freq_attention_masks)
     train_token_types.extend(one_freq_token_types)
+    print('Unique target rows added to train set')
 
     # change train sets to tensors
     t_train_inputs = torch.tensor(train_inputs)
@@ -72,11 +73,16 @@ def main():
     t_dev_masks = torch.tensor(dev_masks)
     t_dev_token_types = torch.tensor(dev_token_types)
 
-    # train to tensors
+    # test to tensors
     t_test_inputs = torch.tensor(test_inputs)
     t_test_labels = torch.tensor(test_labels)
     t_test_masks = torch.tensor(test_masks)
     t_test_token_types = torch.tensor(test_token_types)
+    print('Data changed to tensors')
+    print('train input:', t_train_inputs.shape)
+    print('train labels:', t_train_labels.shape)
+    print('dev input:', t_train_inputs.shape)
+    print('test input:', t_train_inputs.shape)
 
     batch_size = 32
 
@@ -94,12 +100,14 @@ def main():
     test_data = TensorDataset(t_test_inputs, t_test_masks, t_test_labels, t_test_token_types)
     test_sampler = SequentialSampler(test_data)
     test_dataloader = DataLoader(test_data, sampler=test_sampler, batch_size=batch_size)
+    print('Iterators created')
 
     # save loaders
     loader_name = sys.argv[1]
-    torch.save(train_dataloader,f'data-loaders/train_loader_{loader_name}')
-    torch.save(dev_dataloader,f'data-loaders/dev_loader_{loader_name}')
-    torch.save(test_dataloader,f'data-loaders/test_loader_{loader_name}')
+    torch.save(train_dataloader,f'notebooks/data-loaders/train_loader_{loader_name}')
+    torch.save(dev_dataloader,f'notebooks/data-loaders/dev_loader_{loader_name}')
+    torch.save(test_dataloader,f'notebooks/data-loaders/test_loader_{loader_name}')
+    print('Dataloaders saved')
 
 if __name__ == "__main__":
     main()
