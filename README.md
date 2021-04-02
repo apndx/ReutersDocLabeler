@@ -5,7 +5,8 @@ This project is about topic classification on the Reuters corpus.
 ##  Script commands
 
 To run scripts, first go to folder ReutersDocLabeler.
-####Making a data loader
+
+### Making a data loader
 
 You should have inputs.csv in the folder reuters-csv. The data loader script wants a name to the loaderset as an argument. For example like this:
 
