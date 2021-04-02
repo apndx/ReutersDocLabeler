@@ -24,7 +24,7 @@ def main():
 
     # encodings
     encodings = tokenizer.batch_encode_plus(
-        documents, padding='max_length', truncation=False)  # tokenizer's encoding method
+        documents, padding='max_length', truncation=True, max_length=512)  # tokenizer's encoding method
     input_ids = encodings['input_ids']  # tokenized and encoded sentences
     token_type_ids = encodings['token_type_ids']  # token type ids
     attention_masks = encodings['attention_mask']  # attention masks
