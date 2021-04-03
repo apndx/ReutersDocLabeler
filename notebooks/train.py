@@ -37,7 +37,7 @@ def train_model(device,model, model_name, optimizer, criterion, n_epochs, num_la
     ALIVE_INTERVAL = 100
     
     for epoch in range(n_epochs):
-        start_time = time.time()
+        epoch_start_time = time.time()
         epoch_loss = 0
         batch_losses = []
         for step, batch in enumerate(dataloader):
@@ -74,22 +74,22 @@ def train_model(device,model, model_name, optimizer, criterion, n_epochs, num_la
                 print(f'Epoch: {epoch+1:02} | Step {step} | Batch time: {batch_mins}m {batch_secs}s')
                 print(f'\tLoss check: {loss_check:.3f}')
         
-        torch.save(model.state_dict(), model_name)    
+        torch.save(model.state_dict(), f'{model_name}_epoch_{epoch}')
         train_loss = epoch_loss / len(dataloader)
         train_losses.append(train_loss)
         all_batch_losses.append(batch_losses)
             
-        end_time = time.time()
+        epoch_end_time = time.time()
             
-        epoch_mins, epoch_secs = epoch_time(batch_start_time, batch_end_time)
+        epoch_mins, epoch_secs = epoch_time(epoch_start_time, epoch_end_time)
         print(f'Epoch: {epoch+1:02} | Epoch Time: {epoch_mins}m {epoch_secs}s')
         print(f'\tTrain Loss: {train_loss:.3f}')
         
     pdScores = pd.DataFrame(scores)
-    pdScores.to_csv(f'scores_{int(time.time())}.csv', index = False)
+    pdScores.to_csv(f'notebooks/scores/scores_{int(time.time())}.csv', index = False)
+    batchLossDf = pd.DataFrame(all_batch_losses)
+    batchLossDf.to_csv(f'notebooks/scores/batch_losses_{int(time.time())}.csv', index = False)
             
-    return train_losses, all_batch_losses
-
 
 
 def main():
@@ -106,10 +106,8 @@ def main():
   
     n_epochs = 4
 
-    train_losses, all_batch_losses = train_model(device, model, model_name, optimizer, criterion, n_epochs, NUM_LABELS, train_dataloader)
+    train_model(device, model, model_name, optimizer, criterion, n_epochs, NUM_LABELS, train_dataloader)
     print('Finished')
-    print('Train losses:', train_losses)
-    print('Batch losses:', all_batch_losses)
 
 
 if __name__ == "__main__":
