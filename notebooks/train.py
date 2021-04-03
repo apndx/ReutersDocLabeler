@@ -74,7 +74,7 @@ def train_model(device,model, model_name, optimizer, criterion, n_epochs, num_la
                 print(f'Epoch: {epoch+1:02} | Step {step} | Batch time: {batch_mins}m {batch_secs}s')
                 print(f'\tLoss check: {loss_check:.3f}')
         
-        torch.save(model.state_dict(), f'{model_name}_epoch_{epoch}')
+        torch.save(model.state_dict(), f'{model_name}_epoch_{epoch+1}.pt')
         train_loss = epoch_loss / len(dataloader)
         train_losses.append(train_loss)
         all_batch_losses.append(batch_losses)
@@ -99,7 +99,7 @@ def main():
     device = 'cuda' if torch.cuda.is_available() else 'cpu'
     print('Device in use:', device)
     train_data_loader_name = f'notebooks/data-loaders/{sys.argv[1]}'
-    model_name = f'notebooks/models/{sys.argv[2]}.pt'
+    model_name = f'notebooks/models/{sys.argv[2]}'
 
     train_dataloader = torch.load(train_data_loader_name)
     model, optimizer, criterion = define_model(device, NUM_LABELS, ADAM_DEFAULT_LR)
