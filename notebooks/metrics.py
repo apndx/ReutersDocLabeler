@@ -15,7 +15,7 @@ def evaluate(output, target, thresh):
     fn = int(((~out) & tgt).sum())
     precision = (tp / (tp + fp + 1e-12))
     recall = (tp / (tp + fn + 1e-12))
-    f_score = (2 * precision * recall)/(precision + recall)
+    f_score = (2 * precision * recall)/(precision + recall + 1e-12)
 
     return {'tp': tp, 'tn': tn, 'fp': fp, 'fn': fn,
         'precision': precision, 'recall': recall, 'f_score': f_score}
