@@ -57,7 +57,7 @@ def test_model(device, model, model_name, criterion, num_labels, dataloader):
             batch_losses.append(loss_check)
             batch_mins, batch_secs = test_time(batch_start_time, batch_end_time)
             if steps % ALIVE_INTERVAL == 0 or steps == len(dataloader):
-                print(f'Epoch: {epoch+1:02} | Step {step} | Batch time: {batch_mins}m {batch_secs}s')
+                print(f'Step {step} | Batch time: {batch_mins}m {batch_secs}s')
                 print(f'\tLoss check: {loss_check:.3f}')
         
         test_loss = total_loss / len(dataloader)
