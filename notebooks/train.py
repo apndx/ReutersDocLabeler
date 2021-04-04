@@ -104,7 +104,7 @@ def main():
     train_dataloader = torch.load(train_data_loader_name)
     model, optimizer, criterion = define_model(device, NUM_LABELS, ADAM_DEFAULT_LR)
   
-    n_epochs = 4
+    n_epochs = int(sys.argv[3])
 
     train_model(device, model, model_name, optimizer, criterion, n_epochs, NUM_LABELS, train_dataloader)
     print('Finished')
