@@ -1,3 +1,4 @@
 .ipynb_checkpoints
 .DS_Store
 notebooks/REUTERS_CORPUS_2/
+__pycache__
