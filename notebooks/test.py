@@ -27,7 +27,7 @@ def test_model(device, model, model_name, criterion, num_labels, dataloader):
     SCORE_INTERVAL = 10
     ALIVE_INTERVAL = 100
     
-    with torch.no_gard():
+    with torch.no_grad():
         test_start_time = time.time()
         total_loss = 0
         batch_losses = []
@@ -91,7 +91,12 @@ def main():
     test_dataloader = torch.load(test_data_loader_name)
 
     print(f'Load the model from {model_name}')
-    model = BertForSequenceClassification.from_pretrained(model_name, num_labels = NUM_LABELS)
+    # model = BertForSequenceClassification.from_pretrained(model_name, num_labels = NUM_LABELS)
+    model = BertForSequenceClassification.from_pretrained("bert-base-uncased", num_labels = NUM_LABELS)
+    if device == 'cuda':
+      model.load_state_dict(torch.load(model_name))
+    else:
+      model.load_state_dict(torch.load(model_name, map_location = torch.device('cpu')))
     model.to(device)
     criterion = BCEWithLogitsLoss()
 
