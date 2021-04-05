@@ -24,7 +24,8 @@ def test_model(device, model, model_name, criterion, num_labels, dataloader):
     steps = 0
     all_batch_losses = []
     scores = []
-    totals = pd.DataFrame(0, columns = list(range(0,126)), index = ['TP', 'TN', 'FP', 'FN'])
+    # totals = pd.DataFrame(0, columns = list(range(0,126)), index = ['TP', 'TN', 'FP', 'FN'])
+    totals = torch.zeros([4, 126], dtype = torch.int32)
     SCORE_INTERVAL = 10
     ALIVE_INTERVAL = 100
     
@@ -48,10 +49,10 @@ def test_model(device, model, model_name, criterion, num_labels, dataloader):
             tn = hits['tn']
             fp = hits['fp']
             fn = hits['fn']
-            totals.loc['TP',:] = totals.loc['TP',:] + list(torch.sum(tp, 0))
-            totals.loc['TN',:] = totals.loc['TN',:] + list(torch.sum(tn, 0))
-            totals.loc['FP',:] = totals.loc['FP',:] + list(torch.sum(fp, 0))
-            totals.loc['FN',:] = totals.loc['FN',:] + list(torch.sum(fn, 0))
+            totals[0] = totals[0] + torch.sum(tp, 0).cpu().detach().numpy()
+            totals[1] = totals[1] + torch.sum(tn, 0).cpu().detach().numpy()
+            totals[2] = totals[2] + torch.sum(fp, 0).cpu().detach().numpy()
+            totals[3] = totals[3] + torch.sum(fn, 0).cpu().detach().numpy()
 
             # Evaluate results
             if steps % SCORE_INTERVAL == 0 or steps == len(dataloader):
@@ -87,7 +88,8 @@ def test_model(device, model, model_name, criterion, num_labels, dataloader):
     pdScores.to_csv(f'notebooks/scores/scores_{run_id}.csv', index = False)
     batchLossDf = pd.DataFrame(all_batch_losses)
     batchLossDf.to_csv(f'notebooks/scores/batch_losses_{run_id}.csv', index = False)
-    totals.T.to_csv(f'notebooks/scores/totals_{run_id}.csv', index = False)
+    pdTotals = pd.DataFrame(totals.tolist(), index = ['TP', 'TN', 'FP', 'FN'])
+    pdTotals.T.to_csv(f'notebooks/scores/totals_{run_id}.csv', index = False)
 
 
 def main():
