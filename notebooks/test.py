@@ -8,8 +8,8 @@ from torch.nn import BCEWithLogitsLoss
 from torch.utils.data import TensorDataset, DataLoader, RandomSampler, SequentialSampler
 from transformers import *
 import sys
-from metrics import evaluate
-# from ReutersDocLabeler.notebooks.metrics import evaluate
+from metrics import count_hits, evaluate
+# from ReutersDocLabeler.notebooks.metrics import count_hits, evaluate
 
 def test_time(start_time, end_time):
     elapsed_time = end_time - start_time
@@ -24,6 +24,7 @@ def test_model(device, model, model_name, criterion, num_labels, dataloader):
     steps = 0
     all_batch_losses = []
     scores = []
+    totals = pd.DataFrame(0, columns = list(range(0,126)), index = ['TP', 'TN', 'FP', 'FN'])
     SCORE_INTERVAL = 10
     ALIVE_INTERVAL = 100
     
@@ -41,9 +42,20 @@ def test_model(device, model, model_name, criterion, num_labels, dataloader):
             logits = outputs[0]
             loss = criterion(logits.view(-1, num_labels),b_labels.type_as(logits).view(-1,num_labels)) #convert labels to float for calculation
 
+            # Update totals
+            hits = count_hits(torch.sigmoid(logits), b_labels, 0.5)
+            tp = hits['tp']
+            tn = hits['tn']
+            fp = hits['fp']
+            fn = hits['fn']
+            totals.loc['TP',:] = totals.loc['TP',:] + list(torch.sum(tp, 0))
+            totals.loc['TN',:] = totals.loc['TN',:] + list(torch.sum(tn, 0))
+            totals.loc['FP',:] = totals.loc['FP',:] + list(torch.sum(fp, 0))
+            totals.loc['FN',:] = totals.loc['FN',:] + list(torch.sum(fn, 0))
+
             # Evaluate results
             if steps % SCORE_INTERVAL == 0 or steps == len(dataloader):
-                score = evaluate(torch.sigmoid(logits), b_labels, 0.5)
+                score = evaluate(tp, tn, fp, fn)
                 score['epoch'] = 1
                 score['batch'] = step
                 scores.append(score)
@@ -75,7 +87,7 @@ def test_model(device, model, model_name, criterion, num_labels, dataloader):
     pdScores.to_csv(f'notebooks/scores/scores_{run_id}.csv', index = False)
     batchLossDf = pd.DataFrame(all_batch_losses)
     batchLossDf.to_csv(f'notebooks/scores/batch_losses_{run_id}.csv', index = False)
-            
+    totals.T.to_csv(f'notebooks/scores/totals_{run_id}.csv', index = False)
 
 
 def main():
