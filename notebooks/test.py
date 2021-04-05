@@ -49,11 +49,10 @@ def test_model(device, model, model_name, criterion, num_labels, dataloader):
             tn = hits['tn']
             fp = hits['fp']
             fn = hits['fn']
-            totals[0] = totals[0] + torch.sum(tp, 0)
-            totals[1] = totals[1] + torch.sum(tn, 0)
-            totals[2] = totals[2] + torch.sum(fp, 0)
-            totals[3] = totals[3] + torch.sum(fn, 0)
-            break
+            totals[0] = totals[0] + torch.sum(tp, 0).cpu().detach().numpy()
+            totals[1] = totals[1] + torch.sum(tn, 0).cpu().detach().numpy()
+            totals[2] = totals[2] + torch.sum(fp, 0).cpu().detach().numpy()
+            totals[3] = totals[3] + torch.sum(fn, 0).cpu().detach().numpy()
 
             # Evaluate results
             if steps % SCORE_INTERVAL == 0 or steps == len(dataloader):
