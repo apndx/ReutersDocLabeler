@@ -8,7 +8,7 @@ from torch.nn import BCEWithLogitsLoss
 from torch.utils.data import TensorDataset, DataLoader, RandomSampler, SequentialSampler
 from transformers import *
 import sys
-from metrics import evaluate
+from metrics import evaluate, count_hits
 # from ReutersDocLabeler.notebooks.metrics import evaluate
 
 def define_model(device, num_labels, lr):
@@ -17,7 +17,7 @@ def define_model(device, num_labels, lr):
     model_1.to(device)
     optimizer_1 = AdamW(model_1.parameters(), lr=lr)
     w = pd.read_csv('notebooks/reuters-csv/pos-weights.csv', delimiter = ';')
-    pos_weights = torch.tensor(w.iloc[:, 0])
+    pos_weights = torch.tensor(w.iloc[:, 0]).to(device)
     criterion_1 = BCEWithLogitsLoss(pos_weight = pos_weights)
     return model_1, optimizer_1, criterion_1
 
@@ -35,6 +35,7 @@ def train_model(device,model, model_name, optimizer, criterion, n_epochs, num_la
     examples = 0
     all_batch_losses = []
     scores = []
+    totals = torch.zeros([4, 126], dtype = torch.int32)
     SCORE_INTERVAL = 10
     ALIVE_INTERVAL = 100
     
@@ -53,9 +54,20 @@ def train_model(device,model, model_name, optimizer, criterion, n_epochs, num_la
             logits = outputs[0]
             loss = criterion(logits.view(-1, num_labels),b_labels.type_as(logits).view(-1,num_labels)) #convert labels to float for calculation
 
+            # Update totals
+            hits = count_hits(torch.sigmoid(logits), b_labels, 0.5)
+            tp = hits['tp']
+            tn = hits['tn']
+            fp = hits['fp']
+            fn = hits['fn']
+            totals[0] = totals[0] + torch.sum(tp, 0).cpu().detach().numpy()
+            totals[1] = totals[1] + torch.sum(tn, 0).cpu().detach().numpy()
+            totals[2] = totals[2] + torch.sum(fp, 0).cpu().detach().numpy()
+            totals[3] = totals[3] + torch.sum(fn, 0).cpu().detach().numpy()
+
             # Evaluate results
             if steps % SCORE_INTERVAL == 0 or steps == len(dataloader):
-                score = evaluate(torch.sigmoid(logits), b_labels, 0.5)
+                score = evaluate(tp, tn, fp, fn)
                 score['epoch'] = epoch + 1
                 score['batch'] = step
                 scores.append(score)
@@ -86,11 +98,14 @@ def train_model(device,model, model_name, optimizer, criterion, n_epochs, num_la
         epoch_mins, epoch_secs = epoch_time(epoch_start_time, epoch_end_time)
         print(f'Epoch: {epoch+1:02} | Epoch Time: {epoch_mins}m {epoch_secs}s')
         print(f'\tTrain Loss: {train_loss:.3f}')
-        
+
+    run_id = int(time.time())    
     pdScores = pd.DataFrame(scores)
-    pdScores.to_csv(f'notebooks/scores/scores_{int(time.time())}.csv', index = False)
+    pdScores.to_csv(f'notebooks/scores/scores_{run_id}.csv', index = False)
     batchLossDf = pd.DataFrame(all_batch_losses)
-    batchLossDf.to_csv(f'notebooks/scores/batch_losses_{int(time.time())}.csv', index = False)
+    batchLossDf.to_csv(f'notebooks/scores/batch_losses_{run_id}.csv', index = False)
+    pdTotals = pd.DataFrame(totals.tolist(), index = ['TP', 'TN', 'FP', 'FN'])
+    pdTotals.T.to_csv(f'notebooks/scores/totals_{run_id}.csv', index = False)
             
 
 
