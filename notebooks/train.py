@@ -16,7 +16,9 @@ def define_model(device, num_labels, lr):
     model_1 = BertForSequenceClassification.from_pretrained("bert-base-uncased", num_labels=num_labels)
     model_1.to(device)
     optimizer_1 = AdamW(model_1.parameters(), lr=lr)
-    criterion_1 = BCEWithLogitsLoss()
+    w = pd.read_csv('notebooks/reuters-csv/pos-weights.csv', delimiter = ';')
+    pos_weights = torch.tensor(w.iloc[:, 0])
+    criterion_1 = BCEWithLogitsLoss(pos_weight = pos_weights)
     return model_1, optimizer_1, criterion_1
 
 def epoch_time(start_time, end_time):
@@ -103,7 +105,7 @@ def main():
 
     train_dataloader = torch.load(train_data_loader_name)
     model, optimizer, criterion = define_model(device, NUM_LABELS, ADAM_DEFAULT_LR)
-  
+    
     n_epochs = int(sys.argv[3])
 
     train_model(device, model, model_name, optimizer, criterion, n_epochs, NUM_LABELS, train_dataloader)
