@@ -12,13 +12,14 @@ from metrics import evaluate, count_hits
 # from ReutersDocLabeler.notebooks.metrics import evaluate
 
 def define_model(device, num_labels, lr):
+    POS_WEIGHT_FACTOR = 0.25
     print('Start defining the model')
     model_1 = BertForSequenceClassification.from_pretrained("bert-base-uncased", num_labels=num_labels)
     model_1.to(device)
     optimizer_1 = AdamW(model_1.parameters(), lr=lr)
     w = pd.read_csv('notebooks/reuters-csv/pos-weights.csv', delimiter = ';')
     pos_weights = torch.tensor(w.iloc[:, 0]).to(device)
-    criterion_1 = BCEWithLogitsLoss(pos_weight = pos_weights)
+    criterion_1 = BCEWithLogitsLoss(pos_weight = pos_weights * POS_WEIGHT_FACTOR)
     return model_1, optimizer_1, criterion_1
 
 def epoch_time(start_time, end_time):
