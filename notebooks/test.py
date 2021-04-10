@@ -83,7 +83,7 @@ def test_model(device, model, model_name, criterion, num_labels, dataloader):
         print(f'Testing Time: {test_mins}m {test_secs}s')
         print(f'\tTest Loss: {test_loss:.3f}')
         
-    run_id = int(time.time())
+    run_id = model_name
     pdScores = pd.DataFrame(scores)
     pdScores.to_csv(f'notebooks/scores/scores_{run_id}.csv', index = False)
     batchLossDf = pd.DataFrame(all_batch_losses)
