@@ -1,5 +1,15 @@
 # ReutersDocLabeler
-This project is about topic classification on the Reuters corpus.
+This project is about topic classification on the Reuters corpus. Some of the project code is in Jupyter notebooks, and some parts are in .py files to easily be able to run scripts in Puhti environment.
+
+## Notebooks
+
+Initial data loading and preprocessing is only as a notebook, also explorative data-analysis and result analysis is also done in notebooks.
+
+### Load and preprocess data
+
+In some steps files input.csv and test.csv are needed. These can be produced by running load-data.ipynb. In the notebooks folder there should be REUTERS_CORPUS_2 folder to create model development data, and reuters-test-data folder to create final test data. These folders have the reuter documents as zipped xml-files. In the notebook, there is constant 'TESTING = True/False' to indicate which data is loaded and processed.
+
+Running load-data.ipynb will result in input.csv or test.csv being created to the 'reuters-csv' folder.
 
 
 ##  Script commands
