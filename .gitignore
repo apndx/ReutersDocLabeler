@@ -1,4 +1,5 @@
 .ipynb_checkpoints
 .DS_Store
 notebooks/REUTERS_CORPUS_2/
+notebooks/reuters-test-data/
 __pycache__
