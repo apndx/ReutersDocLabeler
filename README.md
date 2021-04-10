@@ -1,9 +1,9 @@
 # ReutersDocLabeler
-This project is about topic classification on the Reuters corpus. Some of the project code is in Jupyter notebooks, and some parts are in .py files to easily be able to run script in Puhti environment.
+This project is about topic classification on the Reuters corpus. Some of the project code is in Jupyter notebooks, and some parts are in .py files to easily be able to run scripts in Puhti environment.
 
 ## Notebooks
 
-Initial data loading and preprocessing is only as a notebook, also explorative data-analysis and result analysis is done in notebooks.
+Initial data loading and preprocessing is only as a notebook, also explorative data-analysis and result analysis is also done in notebooks.
 
 ### Load and preprocess data
 
