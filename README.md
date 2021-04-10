@@ -24,7 +24,8 @@ You should have inputs.csv in the folder reuters-csv. You should have three argu
 python notebooks/csv-to-dataloader.py full-data-loader train
 ``` 
 
-Running csv-to-dataloader.py will result in three dataloaders (train/dev/test) that are saved in the data-loaders folder.
+Running csv-to-dataloader.py with train will result in three dataloaders (train/dev/test) that are saved in the data-loaders folder. If the script is run with test, only test loader is created. Trainloader shuffles data, but dev and test loaders keep the order.
+
 ### Training
 
 You should have four arguments: the first defining the folder/file of the train script, the second the dataloader name that is used, the third should be a name for the model, and the fourt the amount of epocs.
