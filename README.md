@@ -18,10 +18,10 @@ To run scripts, first go to folder ReutersDocLabeler.
 
 ### Making a data loader
 
-You should have inputs.csv in the folder reuters-csv. You should have two arguments: The path and file for the script, and a name for the loaderset. For example like this:
+You should have inputs.csv in the folder reuters-csv. You should have three arguments: The path and file for the script, a name for the loaderset, and 'train' or 'test' to choose if the loader is for train or test. For example like this:
 
 ```
-python notebooks/csv-to-dataloader.py full-data-loader
+python notebooks/csv-to-dataloader.py full-data-loader train
 ``` 
 
 Running csv-to-dataloader.py will result in three dataloaders (train/dev/test) that are saved in the data-loaders folder.
