@@ -36,7 +36,7 @@ def test_model(device, model, model_name, num_labels, dataloader, itemids):
             logits = outputs[0]
 
             prediction = logits > 0.5
-            results.extend(prediction)
+            results.extend(np.array(prediction.tolist().cpu().detach().numpy()))
 
             steps += 1
             batch_end_time = time.time() 
@@ -52,8 +52,8 @@ def test_model(device, model, model_name, num_labels, dataloader, itemids):
         print(f'Testing Time: {test_mins}m {test_secs}s')
         
     run_id = sys.argv[2]
-    dfResults = pd.DataFrame(results)
-    dfResults['id'] = itemids
+    dfResults = pd.DataFrame(results + 0)
+    dfResults.insert(loc = 0, column = 'id', value = itemids)
     dfResults.to_csv(f'notebooks/scores/test_results_{run_id}.csv', index = False)
 
 
