@@ -12,23 +12,39 @@ from metrics import evaluate, count_hits
 # from ReutersDocLabeler.notebooks.metrics import evaluate
 
 def define_model(device, num_labels, lr):
-    POS_WEIGHT_FACTOR = 0.25
+    # Parameters:
+    # device: cpu or cuda
+    # num_labels: the number of the possible labels
+    # lr: Learning rate for the optimizer
+    # POS_WEIGHT_FACTOR = 0.25 # Not using pos_weight in the final model
     print('Start defining the model')
     model_1 = BertForSequenceClassification.from_pretrained("bert-base-uncased", num_labels=num_labels)
     model_1.to(device)
     optimizer_1 = AdamW(model_1.parameters(), lr=lr)
-    w = pd.read_csv('notebooks/reuters-csv/pos-weights.csv', delimiter = ';')
-    pos_weights = torch.tensor(w.iloc[:, 0]).to(device)
-    criterion_1 = BCEWithLogitsLoss(pos_weight = pos_weights * POS_WEIGHT_FACTOR)
+    # w = pd.read_csv('notebooks/reuters-csv/pos-weights.csv', delimiter = ';')
+    # pos_weights = torch.tensor(w.iloc[:, 0]).to(device)
+    criterion_1 = BCEWithLogitsLoss()
+    # criterion_1 = BCEWithLogitsLoss(pos_weight = pos_weights * POS_WEIGHT_FACTOR)
     return model_1, optimizer_1, criterion_1
 
 def epoch_time(start_time, end_time):
+    # This is used to calculate the elapsed time
+    # It was adopted from some of the homework assignments
     elapsed_time = end_time - start_time
     elapsed_mins = int(elapsed_time / 60)
     elapsed_secs = int(elapsed_time - (elapsed_mins * 60))
     return elapsed_mins, elapsed_secs
 
 def train_model(device,model, model_name, optimizer, criterion, n_epochs, num_labels, dataloader):
+    # Parameters:
+    # device: torch or cuda
+    # model: the pretrained model to use
+    # model_name: the name of the model to be used when it is saved for further use
+    # optimizer: the optimizer to be used
+    # criterion: the loss function to be used
+    # n_epochs: the number of epochs to train
+    # num_labels: the number of the possible labels
+    # dataloader: the dataloder that provides the input for the training
     print('Start training')
     train_losses = []
     model.train()
@@ -40,6 +56,7 @@ def train_model(device,model, model_name, optimizer, criterion, n_epochs, num_la
     SCORE_INTERVAL = 10
     ALIVE_INTERVAL = 100
     
+    # THE TRAINING LOOP
     for epoch in range(n_epochs):
         epoch_start_time = time.time()
         epoch_loss = 0
@@ -86,9 +103,11 @@ def train_model(device,model, model_name, optimizer, criterion, n_epochs, num_la
             batch_losses.append(loss_check)
             batch_mins, batch_secs = epoch_time(batch_start_time, batch_end_time)
             if steps % ALIVE_INTERVAL == 0 or steps == len(dataloader):
+                # Provide some feedback during the training
                 print(f'Epoch: {epoch+1:02} | Step {step} | Batch time: {batch_mins}m {batch_secs}s')
                 print(f'\tLoss check: {loss_check:.3f}')
         
+        # Save the model after each epoch for comparison and in case something goes wrong
         torch.save(model.state_dict(), f'{model_name}_epoch_{epoch+1}.pt')
         train_loss = epoch_loss / len(dataloader)
         train_losses.append(train_loss)
@@ -100,6 +119,7 @@ def train_model(device,model, model_name, optimizer, criterion, n_epochs, num_la
         print(f'Epoch: {epoch+1:02} | Epoch Time: {epoch_mins}m {epoch_secs}s')
         print(f'\tTrain Loss: {train_loss:.3f}')
 
+    # Save the training statistics for later analysis purposes
     run_id = int(time.time())    
     pdScores = pd.DataFrame(scores)
     pdScores.to_csv(f'notebooks/scores/scores_{run_id}.csv', index = False)
@@ -107,10 +127,12 @@ def train_model(device,model, model_name, optimizer, criterion, n_epochs, num_la
     batchLossDf.to_csv(f'notebooks/scores/batch_losses_{run_id}.csv', index = False)
     pdTotals = pd.DataFrame(totals.tolist(), index = ['TP', 'TN', 'FP', 'FN'])
     pdTotals.T.to_csv(f'notebooks/scores/totals_{run_id}.csv', index = False)
-            
-
 
 def main():
+    # Arguments needed:
+    # 1: Name of the dataloader file
+    # 2: Name of the model file
+    # 3: Number of eopchs to train
 
     NUM_LABELS = 126 # amount of the different topics
     ADAM_DEFAULT_LR = 1e-5
@@ -124,7 +146,9 @@ def main():
     
     n_epochs = int(sys.argv[3])
 
+    # Initiate training
     train_model(device, model, model_name, optimizer, criterion, n_epochs, NUM_LABELS, train_dataloader)
+
     print('Finished')
 
 

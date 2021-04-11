@@ -12,12 +12,22 @@ from metrics import count_hits, evaluate
 # from ReutersDocLabeler.notebooks.metrics import count_hits, evaluate
 
 def test_time(start_time, end_time):
+    # This is used to calculate the elapsed time
+    # It was adopted from some of the homework assignments
     elapsed_time = end_time - start_time
     elapsed_mins = int(elapsed_time / 60.0)
     elapsed_secs = int(elapsed_time - (elapsed_mins * 60.0))
     return elapsed_mins, elapsed_secs
 
 def test_model(device, model, model_name, criterion, num_labels, dataloader):
+    # Parameters:
+    # device: torch or cuda
+    # model: the pretrained model to use
+    # model_name: the name of the model to be used when it is saved for further use
+    # criterion: the loss function to be used
+    # num_labels: the number of the possible labels
+    # dataloader: the dataloder that provides the input for the training
+
     print(f'Start validating model {model_name}')
     test_losses = []
     model.eval()
@@ -29,6 +39,7 @@ def test_model(device, model, model_name, criterion, num_labels, dataloader):
     SCORE_INTERVAL = 10
     ALIVE_INTERVAL = 100
     
+    # THE VALIDATION LOOP
     with torch.no_grad():
         test_start_time = time.time()
         total_loss = 0
@@ -70,6 +81,7 @@ def test_model(device, model, model_name, criterion, num_labels, dataloader):
             batch_losses.append(loss_check)
             batch_mins, batch_secs = test_time(batch_start_time, batch_end_time)
             if steps % ALIVE_INTERVAL == 0 or steps == len(dataloader):
+                # Provide some feedback during the training
                 print(f'Step {step} | Batch time: {batch_mins}m {batch_secs}s')
                 print(f'\tLoss check: {loss_check:.3f}')
         
@@ -83,6 +95,7 @@ def test_model(device, model, model_name, criterion, num_labels, dataloader):
         print(f'Testing Time: {test_mins}m {test_secs}s')
         print(f'\tTest Loss: {test_loss:.3f}')
         
+    # Save the validation statistics for later analysis purposes
     run_id = model_name
     pdScores = pd.DataFrame(scores)
     pdScores.to_csv(f'notebooks/scores/scores_{run_id}.csv', index = False)
@@ -93,6 +106,9 @@ def test_model(device, model, model_name, criterion, num_labels, dataloader):
 
 
 def main():
+    # Arguments needed:
+    # 1: Name of the dataloader file
+    # 2: Name of the model file
 
     NUM_LABELS = 126 # amount of the different topics
     ADAM_DEFAULT_LR = 1e-5
@@ -114,6 +130,7 @@ def main():
     model.to(device)
     criterion = BCEWithLogitsLoss()
 
+    # Initiate validation of the model
     test_model(device, model, model_name, criterion, NUM_LABELS, test_dataloader)
     print('Finished')
 
