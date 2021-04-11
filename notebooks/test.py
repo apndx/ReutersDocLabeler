@@ -17,7 +17,7 @@ def test_time(start_time, end_time):
     elapsed_secs = int(elapsed_time - (elapsed_mins * 60.0))
     return elapsed_mins, elapsed_secs
 
-def test_model(device, model, model_name, num_labels, dataloader, itemids):
+def test_model(device, model, model_name, num_labels, dataloader, itemids, topic_codes):
     print(f'Start testing model {model_name}')
     model.eval()
     steps = 0
@@ -36,7 +36,8 @@ def test_model(device, model, model_name, num_labels, dataloader, itemids):
             logits = outputs[0]
 
             prediction = logits > 0.5
-            results.extend(np.array(prediction.tolist().cpu().detach().numpy()))
+            result = np.array(prediction.tolist())
+            results.extend(result)
 
             steps += 1
             batch_end_time = time.time() 
@@ -52,9 +53,11 @@ def test_model(device, model, model_name, num_labels, dataloader, itemids):
         print(f'Testing Time: {test_mins}m {test_secs}s')
         
     run_id = sys.argv[2]
-    dfResults = pd.DataFrame(results + 0)
+    dfResults = pd.DataFrame(results)
+    dfResults = dfResults + 0
+    dfResults.columns = topic_codes
     dfResults.insert(loc = 0, column = 'id', value = itemids)
-    dfResults.to_csv(f'notebooks/scores/test_results_{run_id}.csv', index = False)
+    dfResults.to_csv(f'notebooks/scores/test_results_{run_id}.csv', sep = ' ', index = False)
 
 
 def main():
@@ -81,8 +84,10 @@ def main():
     # load csv
     df = pd.read_csv(f'notebooks/reuters-csv/test.csv', delimiter=';')
     itemids = df['id']
+    topics = pd.read_csv('reuters-csv/topic_codes.txt', delimiter='\t')
+    topic_codes = df['CODE'].tolist()
 
-    test_model(device, model, model_name, NUM_LABELS, test_dataloader, itemids)
+    test_model(device, model, model_name, NUM_LABELS, test_dataloader, itemids, topic_codes)
     print('Finished')
 
 
