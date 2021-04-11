@@ -84,8 +84,8 @@ def main():
     # load csv
     df = pd.read_csv(f'notebooks/reuters-csv/test.csv', delimiter=';')
     itemids = df['id']
-    topics = pd.read_csv('reuters-csv/topic_codes.txt', delimiter='\t')
-    topic_codes = df['CODE'].tolist()
+    topics = pd.read_csv('notebooks/reuters-csv/topic_codes.txt', delimiter='\t')
+    topic_codes = topics['CODE'].tolist()
 
     test_model(device, model, model_name, NUM_LABELS, test_dataloader, itemids, topic_codes)
     print('Finished')
