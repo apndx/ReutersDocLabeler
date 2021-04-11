@@ -24,7 +24,7 @@ You should have inputs.csv in the folder reuters-csv. You should have three argu
 python notebooks/csv-to-dataloader.py full-data-loader train
 ``` 
 
-Running csv-to-dataloader.py with train will result in three dataloaders (train/dev/test) that are saved in the data-loaders folder. If the script is run with test, only test loader is created. Trainloader shuffles data, but dev and test loaders keep the order.
+Running [csv-to-dataloader.py](https://github.com/apndx/ReutersDocLabeler/blob/main/notebooks/csv-to-dataloader.py) with train will result in three dataloaders (train/dev/test) that are saved in the data-loaders folder. If the script is run with test, only test loader is created. Trainloader shuffles data, but dev and test loaders keep the row order.
 
 ### Training
 
@@ -35,14 +35,26 @@ For example like this:
 python notebooks/train.py train-full-data-loader model_2 4
 ``` 
 
-Running train.py will result in as many model files as there are epocs, and the models are saved in the models folder. The model files are approximately 418 MB each. Training losses and scores are also saved in the scores folder.
+Running [train.py](https://github.com/apndx/ReutersDocLabeler/blob/main/notebooks/train.py) will result in as many model files as there are epocs, and the models are saved in the models folder. The model files are approximately 418 MB each. Training losses and scores are also saved in the scores folder.
+
+### Validating
+
+You should have three arguments: the first defining the folder/file of the validation script, the second the dataloader name that is used, and the third the model that is validated. For example like this:
+
+```
+python3 notebooks/validate.py dev-full-data-loader model_2_epoch_2.pt
+```
+
+Running [validate.py](https://github.com/apndx/ReutersDocLabeler/blob/main/notebooks/validate.py) will result in losses, scores and totals files that are saved in the scores folder.
 
 ### Testing
+
+There should be test.csv in the reuter-csv folder, test dataloader in the data-loaders folder and model in the models folder.
 
 You should have three arguments: the first defining the folder/file of the test script, the second the dataloader name that is used, and the third the model that is tested. For example like this:
 
 ```
-python3 notebooks/test.py dev-full-data-loade model_2_epoch_2.pt
+python3 notebooks/test.py test-data-loader model_2_epoch_2.pt
 ```
 
-Running test.py will result in losses and scores files that are saved in the scores folder.
+Running [test.py](https://github.com/apndx/ReutersDocLabeler/blob/main/notebooks/test.py) will result in a test result CSV file that is saved in the scores folder.

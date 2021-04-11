@@ -54,7 +54,7 @@ def test_model(device, model, model_name, num_labels, dataloader, itemids):
     run_id = sys.argv[2]
     dfResults = pd.DataFrame(results)
     dfResults['id'] = itemids
-    dfResults.to_csv(f'notebooks/test_results_{run_id}.csv', index = False)
+    dfResults.to_csv(f'notebooks/scores/test_results_{run_id}.csv', index = False)
 
 
 def main():
